@@ -50,7 +50,7 @@ public class HelloWorld {
 
         // Создание IgniteCache и присвоение ему значений.
         IgniteCache<Integer, Air> cache = ignite.getOrCreateCache("myCache");
-        IgniteCache<Integer, String> cacheBible = ignite.getOrCreateCache("byble");
+        IgniteCache<Integer, Bible> cacheBible = ignite.getOrCreateCache("byble");
 
         String countAir = null;
         String countBible = null;
@@ -79,12 +79,14 @@ public class HelloWorld {
             e.printStackTrace();
         }
 
-        for (int i =1; i < 30;i++){
-            Air airtest = cache.get(i);
+      //  for (int i =1; i < 30;i++){
+     //       Air airtest = cache.get(i);
+
            // Air airtest = ge
-            System.out.println(">>> cache'" + airtest);
-            System.out.println(">>> cache'" + cache.get(i));
-        }
+           // System.out.println(">>> cache'" + airtest);
+          //  int test1 = airtest.getTimestamp();
+         //   System.out.println(">>> Id'" + test1);
+     //   }
         try {
             int i = 1;
             File file1 = new File("/root/lab2/ttttt.txt");
@@ -95,8 +97,8 @@ public class HelloWorld {
 
             while (line1 !=null){
                 String[] words1 = line1.split("\t");
-                String stroka1 =words1[0] + "," + words1[1] ;
-                cacheBible.put(i, stroka1);
+                //String stroka1 =words1[0] + "," + words1[1] ;
+                cacheBible.put(i, new Bible(words1[0],words1[1]));
                 line1 = reader1.readLine();
                 i++;
             }
@@ -169,7 +171,7 @@ public class HelloWorld {
         public void setId(int id){
             this.id = id;
         }
-        public long getTimestamp(){
+        public int getTimestamp(){
             return timestamp;
         }
         public void setTimestamp(int timestamp){
@@ -180,6 +182,30 @@ public class HelloWorld {
         }
     }
 
+    public static class Bible{
+        private String airport;
+        private String country;
+
+        Bible(String airport, String country){
+
+            this.airport = airport;
+            this.country = country;
+        }
+        public String getAirport(){return airport;}
+        public void setAirport(String airport){
+            this.airport = airport;
+        }
+        public String getCountry(){
+            return country;
+        }
+        public void setCountry(String country){
+            this.country = country;
+        }
+
+        @Override public String toString() {
+            return "Bible [airport=" + airport +" country="+ country +"]";
+        }
+    }
 
         public static class CharacterCountTask extends ComputeTaskSplitAdapter<String, Integer> {
             // 1. Splits the received string into words
@@ -192,7 +218,7 @@ public class HelloWorld {
             public List<ComputeJob> split(int gridSize, String arg) {
                 String[] count = arg.split(",");
                 IgniteCache<Integer, Air> cache = ignite.cache("myCache");
-                IgniteCache<Integer, String> cacheBible = ignite.getOrCreateCache("byble");
+                IgniteCache<Integer, Bible> cacheBible = ignite.getOrCreateCache("byble");
 /*
                 ArrayList<String> lines = new ArrayList<>();
                 try(Scanner scan = new Scanner(new File("/root/lab2/ttttt.txt"))){
@@ -210,8 +236,8 @@ public class HelloWorld {
                 List<ComputeJob> jobs = new ArrayList<>();
 
                 for (int i =1; i < Integer.parseInt(count[0]);i++) {
-                    //Air stroka = cache.get(i);
-                    System.out.println(">>> Printing modif'" + cache.get(i) + "' on from compute job.");
+                    Air cacheStrokaAir = cache.get(i);
+
                     //String stroka1 = cacheBible.get(i);
                     //String[] words = stroka.split(",");
                    // String[] words1 = stroka1.split(",");
@@ -229,7 +255,25 @@ public class HelloWorld {
                             //Заменяем аэропорты на страны
 */
 
+                            Bible cacheStrokaBible;
+                            String airportOtByble;
 
+                            String airportAir = cacheStrokaAir.getAirIn();
+                            String countryVmestoAir = null;
+
+
+                            for (int y =1; y < Integer.parseInt(count[1]);y++){
+                                cacheStrokaBible = cacheBible.get(y);
+                                airportOtByble = cacheStrokaBible.getAirport();
+                                if (airportOtByble.equals(airportAir)){
+                                    countryVmestoAir = cacheStrokaBible.getCountry();
+                                    break;
+                                }
+                            }
+
+                            System.out.println(">>>airport - " + airportAir + "; country - " + countryVmestoAir);
+
+                            System.out.println("-------------------------------------------");
                             return finalI;
                         }
                     }
