@@ -49,7 +49,7 @@ public class HelloWorld {
         Ignite ignite = Ignition.start(cfg);
 
         // Создание IgniteCache и присвоение ему значений.
-        IgniteCache<Integer, String> cache = ignite.getOrCreateCache("myCache");
+        IgniteCache<Integer, Air> cache = ignite.getOrCreateCache("myCache");
         IgniteCache<Integer, String> cacheBible = ignite.getOrCreateCache("byble");
 
         String countAir = null;
@@ -65,8 +65,9 @@ public class HelloWorld {
 
             while (line !=null){
                 String[] words = line.split(",");
-                String stroka =words[0] + "," + words[1] + "," + words[2] + ","+ words[3];
-                cache.put(i, stroka);
+                //String stroka =words[0] + "," + words[1] + "," + words[2] + ","+ words[3];
+                cache.put(i, new Air(Integer.parseInt(words[0]),Integer.parseInt(words[1]),words[2],words[3]));
+                //cache.put(i, new Air(1,2,"words[2]","words[3]"));
                 line = reader.readLine();
                 i++;
             }
@@ -78,6 +79,12 @@ public class HelloWorld {
             e.printStackTrace();
         }
 
+        for (int i =1; i < 30;i++){
+            Air airtest = cache.get(i);
+           // Air airtest = ge
+            System.out.println(">>> cache'" + airtest);
+            System.out.println(">>> cache'" + cache.get(i));
+        }
         try {
             int i = 1;
             File file1 = new File("/root/lab2/ttttt.txt");
@@ -132,13 +139,13 @@ public class HelloWorld {
         ignite.close();
     }
 
-    public class Air{
+    public static class Air{
         private int id;
-        private long timestamp;
+        private int timestamp;
         private String airIn;
         private String airOut;
 
-        public Air(int id,long timestamp, String airIn, String airOut){
+        Air(int id,int timestamp, String airIn, String airOut){
             this.id = id;
             this.timestamp = timestamp;
             this.airIn = airIn;
@@ -165,8 +172,11 @@ public class HelloWorld {
         public long getTimestamp(){
             return timestamp;
         }
-        public void setTimestamp(long timestamp){
+        public void setTimestamp(int timestamp){
             this.timestamp = timestamp;
+        }
+        @Override public String toString() {
+            return "Air [id=" + id +" timestamp="+ timestamp +" airIn"+airIn+" airOut"+airOut+"]";
         }
     }
 
@@ -181,7 +191,7 @@ public class HelloWorld {
             @Override
             public List<ComputeJob> split(int gridSize, String arg) {
                 String[] count = arg.split(",");
-                IgniteCache<Integer, String> cache = ignite.cache("myCache");
+                IgniteCache<Integer, Air> cache = ignite.cache("myCache");
                 IgniteCache<Integer, String> cacheBible = ignite.getOrCreateCache("byble");
 /*
                 ArrayList<String> lines = new ArrayList<>();
@@ -200,26 +210,27 @@ public class HelloWorld {
                 List<ComputeJob> jobs = new ArrayList<>();
 
                 for (int i =1; i < Integer.parseInt(count[0]);i++) {
-                    String stroka = cache.get(i);
+                    //Air stroka = cache.get(i);
+                    System.out.println(">>> Printing modif'" + cache.get(i) + "' on from compute job.");
                     //String stroka1 = cacheBible.get(i);
-                    String[] words = stroka.split(",");
+                    //String[] words = stroka.split(",");
                    // String[] words1 = stroka1.split(",");
                     int finalI = i;
                     jobs.add(new ComputeJobAdapter() {
                         @Override
                         public Object execute() {
-                            System.out.println(">>> Printing Id = " + finalI + " words = " + words[1] + " bible = " );
-
+                            //System.out.println(">>> Printing Id = " + finalI + " words = " + words[1] + " bible = " );
+/*
                             // Округляем часы
                             int intReturn = Integer.parseInt(words[1]);
                             intReturn = intReturn - (intReturn % 3600);
                             words[1] = Long.toString(intReturn);
                             System.out.println(">>> Printing modif'" + words[1] + "' on from compute job.");
                             //Заменяем аэропорты на страны
+*/
 
 
-
-                            return intReturn;
+                            return finalI;
                         }
                     }
                     );
