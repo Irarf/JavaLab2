@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #Программа генерации данных аэропорта
+#Количество строкв файле
 MAXCOUNT=$1
 
 filebible='/root/lab2/bible'
@@ -41,9 +42,7 @@ do
 
         AirOut=$(awk -v b="$AirIdOut" -F '[\t]' 'NR==b{print $1}' ttttt.txt)
 
-        #let "time = time - MAXCOUNT + count"
-
-        #echo "$Id,$time,$IdAirIn,$IdAirOut" >> input
+	#Записываем в input полученную строчку
         echo "$raceId,$timerace,$AirIn,$AirOut" >> input
 let "count += 1"
 done
