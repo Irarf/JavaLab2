@@ -1,0 +1,52 @@
+#!/bin/bash
+
+#Программа генерации данных аэропорта
+MAXCOUNT=$1
+
+filebible='/root/lab2/bible'
+
+echo "Удаление предыдущих файлов"
+echo -n > input
+
+RANGERACEID=10
+RANGETIME=3600
+RANGEAIRIN=50
+RANGEAIROUT=50
+count=1
+
+echo "Генерация данных"
+while [ "$count" -le $MAXCOUNT ]
+do
+        #timerace=$(date +"%s")
+        #Генерируем номер рейса
+        let "raceId = $count"
+
+        #Генерируем дату вылета
+	let "timerace = $(date "+%s") + ($RANDOM % RANGETIME + 1)"
+
+	#Генерируем аэропорт назначения
+        let "AirIdIn = $RANDOM % RANGEAIRIN + 1"
+
+        #Генерируем аэропорт вылета
+        let "AirIdOut = $RANDOM % RANGEAIROUT + 1"
+
+        #Проверка отсутствия совпадений в аэропортах
+        while [ "$AirIdIn" -eq "$AirIdOut" ]
+        do
+        let "AirIdOut = $RANDOM % RANGEAIROUT + 1"
+        done
+
+        #Получаем слова вместо цифр
+        AirIn=$(awk -v a="$AirIdIn"  -F '[\t]' 'NR==a{print $1}' ttttt.txt)
+
+        AirOut=$(awk -v b="$AirIdOut" -F '[\t]' 'NR==b{print $1}' ttttt.txt)
+
+        #let "time = time - MAXCOUNT + count"
+
+        #echo "$Id,$time,$IdAirIn,$IdAirOut" >> input
+        echo "$raceId,$timerace,$AirIn,$AirOut" >> input
+let "count += 1"
+done
+
+
+
