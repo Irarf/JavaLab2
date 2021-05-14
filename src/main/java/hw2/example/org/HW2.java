@@ -17,8 +17,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ *
+ */
 public class HW2 {
 
+    /**
+     *
+     */
     public static void main(String[] args) throws IgniteException {
 
         String fileCache = args[0];
@@ -28,7 +34,6 @@ public class HW2 {
 
         // Подготовка IgniteConfiguration для использования Java APIs
         IgniteConfiguration cfg = new IgniteConfiguration();
-
 
         DataStorageConfiguration storageCnf = new DataStorageConfiguration();
 
@@ -57,6 +62,7 @@ public class HW2 {
         String countAir = null;
         String countBible = null;
         String countItog;
+        //Записываем в кэш задание
         try {
             int i = 1;
             //"/root/lab2/input"
@@ -64,13 +70,9 @@ public class HW2 {
             FileReader fr = new FileReader(file);
             BufferedReader reader = new BufferedReader(fr);
             String line = reader.readLine();
-
-
             while (line !=null){
                 String[] words = line.split(",",0);
-                //String stroka =words[0] + "," + words[1] + "," + words[2] + ","+ words[3];
                 cache.put(i, new Air(Integer.parseInt(words[0]),Integer.parseInt(words[1]),words[2],words[3]));
-                //cache.put(i, new Air(1,2,"words[2]","words[3]"));
                 line = reader.readLine();
                 i++;
             }
@@ -82,6 +84,7 @@ public class HW2 {
             e.printStackTrace();
         }
 
+        //Записываем в кэш справочник аэропорт-страна
         try {
             int i = 1;
             //"/root/lab2/ttttt.txt"
@@ -89,61 +92,40 @@ public class HW2 {
             FileReader fr1 = new FileReader(file1);
             BufferedReader reader1 = new BufferedReader(fr1);
             String line1 = reader1.readLine();
-
-
             while (line1 !=null){
                 String[] words1 = line1.split("\t");
-                //String stroka1 =words1[0] + "," + words1[1] ;
                 cacheBible.put(i, new Bible(words1[0],words1[1]));
                 line1 = reader1.readLine();
                 i++;
             }
             countBible = Integer.toString(i);
-
         }catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        //Записали количество строк в обоих кэшах
         countItog = countAir + "," + countBible;
 
-        /*
-        ArrayList<String> lines = new ArrayList<>();
-        try(Scanner scan = new Scanner((new File("/root/lab2/input")))) {
-
-            while (scan.hasNextLine()){
-                 lines.add(scan.nextLine());
-            }
-
-        }catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        String[] mass = lines.toArray(new String[0]);*/
         IgniteCompute compute = ignite.compute();
 
-        // Execute the task on the cluster and wait for its completion.
+        // Запускаем задачу
         compute.execute(CharacterCountTask.class, countItog);
-        // System.out.println(">>> Total number of characters in the phrase is '" + cnt + "'.");
-        //  System.out.println(">> Created the cache and add the values.");
-
-        // Executing custom Java compute task on server nodes.
-        // ignite.compute(ignite.cluster().forServers()).broadcast(new RemoteTask());
 
         System.out.println(">> Compute task is executed, check for output on the server nodes.");
 
-        // Disconnect from the cluster.
+        // Сбрасываем кэш
         cache.destroy();
         cacheBible.destroy();
         ignite.close();
     }
 
 
-
+    /**
+     * Посылаем строку, получаем строку для подсчета
+     */
     public static class CharacterCountTask extends ComputeTaskAdapter<String, String> {
-        // 1. Splits the received string into words
-        // 2. Creates a child job for each word
-        // 3. Sends the jobs to other nodes for processing.
+
         @IgniteInstanceResource
         Ignite ignite;
 
@@ -153,21 +135,7 @@ public class HW2 {
             String[] count = arg.split(",");
             IgniteCache<Integer, Air> cache = ignite.cache("myCache");
             IgniteCache<Integer, Bible> cacheBible = ignite.getOrCreateCache("byble");
-/*
-                ArrayList<String> lines = new ArrayList<>();
-                try(Scanner scan = new Scanner(new File("/root/lab2/ttttt.txt"))){
-                    while(scan.hasNextLine()){
-                        lines.add(scan.nextLine());
-                    }
-                }catch (FileNotFoundException e){
-                    e.printStackTrace();
-                }
 
-                String[] array = lin    es.toArray(new String[0]);
-*/
-            //for (int i =1; i < 30;i++)
-            //System.out.println(">>> Printing '" + cacheBible.get(i) + "'   ");
-            //List<ComputeJob> jobs = new ArrayList<>();
             Map<ComputeJob,ClusterNode> map = new HashMap<>();
 
             Iterator<ClusterNode> it = nodes.iterator();
@@ -184,15 +152,7 @@ public class HW2 {
                             @Nullable
                             @Override
                             public Object execute() {
-                                //System.out.println(">>> Printing Id = " + finalI + " words = " + words[1] + " bible = " );
-/*
-                            // Округляем часы
-                            int intReturn = Integer.parseInt(words[1]);
-                            intReturn = intReturn - (intReturn % 3600);
-                            words[1] = Long.toString(intReturn);
-                            System.out.println(">>> Printing modif'" + words[1] + "' on from compute job.");
-                            //Заменяем аэропорты на страны
-*/
+
 
                                 Bible cacheStrokaBible;
                                 String airportOtByble;
@@ -202,14 +162,13 @@ public class HW2 {
 
                                 String countryVmestoAirIn = null;
                                 String countryVmestoAirOut = null;
-                                //System.out.println(">>> airportAirIn - " + airportAirIn + "; airportAirOut - " + airportAirOut);
-                                //System.out.println(">>>airport - " + airportAirOut + "; country - " + countryVmestoAirOut);
+
+                                //Заменяем аэропорты на страны
                                 for (int y =1; y < Integer.parseInt(count[1]);y++){
                                     boolean in = true;
                                     boolean out = true;
                                     cacheStrokaBible = cacheBible.get(y);
                                     airportOtByble = cacheStrokaBible.getAirport();
-                                    //System.out.println(">>> airportAirIn - " + airportAirOut + "; airportOtByble - " + airportOtByble);
                                     if (airportOtByble.equals(airportAirOut) && out){
                                         countryVmestoAirOut = cacheStrokaBible.getCountry();
                                         out = false;
@@ -223,14 +182,14 @@ public class HW2 {
 
                                 }
 
+                                // Округляем время до часов
                                 int time = cacheStrokaAir.getTimestamp();
                                 time = time - (time % 3600);
                                 cacheStrokaAir.setAirIn(countryVmestoAirIn);
                                 cacheStrokaAir.setAirOut(countryVmestoAirOut);
                                 cacheStrokaAir.setTimestamp(time);
 
-                                // System.out.println(">>>airportIn - " + airportAirIn + "; countryIn - " + countryVmestoAirIn);
-                                // System.out.println(">>>airportOut - " + airportAirOut + "; countryOut - " + countryVmestoAirOut);
+                                //Выводим на узлах обновленные записи (замена аэропорта на страну)
                                 System.out.println(">>>cache - " + cacheStrokaAir);
                                 System.out.println("-------------------------------------------");
                                 return Integer.toString(time) + "," + cacheStrokaAir.getAirIn() +","+ cacheStrokaAir.getAirOut();
@@ -242,6 +201,7 @@ public class HW2 {
             return map;
         }
 
+        //Подсчитываем количество вылетов из одной страны в другую за один час
         @Override
         public String reduce(List<ComputeJobResult> results) {
             int sum = 0;
@@ -256,7 +216,9 @@ public class HW2 {
         }
     }
 
-
+    /**
+     * Шаблон для кэш-памяти Air
+     */
     public static class Air{
         private int id;
         private int timestamp;
@@ -298,6 +260,9 @@ public class HW2 {
         }
     }
 
+    /**
+     * Шаблон для кэш-памяти Bible
+     */
     public static class Bible{
         private String airport;
         private String country;
